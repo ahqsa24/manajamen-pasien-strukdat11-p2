@@ -177,7 +177,6 @@ public:
 
     // Fungsi untuk memasukkan biodata pasien
     void inputBiodata() {
-        // Meminta pengguna untuk memasukkan informasi pasien
         cout << "Masukkan nama pasien: ";
         cin >> nama;
 
