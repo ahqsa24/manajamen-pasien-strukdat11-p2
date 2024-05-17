@@ -14,7 +14,7 @@ struct HashTable
 {
     // data
     string username, password;
-} dataAkun[26];
+}   dataAkun[26];
 
 // Fungsi hash
 int hashFunction(string key)
@@ -25,7 +25,6 @@ int hashFunction(string key)
 // Fungsi cekDaftar
 bool cekDaftar(string username, string password)
 {
-
     int index = hashFunction(password);
 
     // cek index masih kosong atau sudah ditempati
@@ -56,7 +55,7 @@ bool cekDaftar(string username, string password)
 }
 
 // Fungsi cekLogin
-bool cekLogin(string& username, string& password)
+bool cekLogin(string username, string password)
 {
     // hashing dulu
     int index = hashFunction(password);
@@ -92,26 +91,6 @@ bool cekHapusAkun(int index)
     }
 }
 
-// Fungsi untuk memuat data akun dari file
-bool muatDataAkunDariFile(const string& username, const string& password) {
-    ifstream inFile("dataPasien.txt");
-    if (!inFile) {
-        cout << "Gagal membuka file." << endl;
-        return false;
-    }
-
-    string fileUsername, filePassword;
-    while (inFile >> fileUsername >> filePassword) {
-        if (fileUsername == username && filePassword == password) {
-            inFile.close();
-            return true;
-        }
-    }
-
-    inFile.close();
-    return false;
-}
-
 // Fungsi untuk menampilkan menu login
 void viewMainMenu();
 void welcome();
@@ -125,7 +104,7 @@ void viewLoginMenu()
     cout << "Isi password anda : ";
     cin >> password;
 
-    if (muatDataAkunDariFile(username, password))
+    if (cekLogin(username, password))
     {
         cout << "\nLogin berhasil!!" << endl;
         // Panggil fungsi menu setelah login berhasil
@@ -210,55 +189,33 @@ public:
 
     // Fungsi untuk memasukkan biodata pasien
     void inputBiodata() {
-// Buka file dengan mode append
-    ofstream dataPasien("dataPasien.txt", ios::app);
-
-    // Periksa apakah file berhasil dibuka
-    if (!dataPasien.is_open()) {
-        cout << "Gagal membuka file." << endl;
-        return 1;
-    }
-
-    // Buat menambahkan data pasien baru
-    char jawab;
-    do {
-        cout << "\n\t Cetak Data Pasien ke Dalam File txt \n\n";
-
-        cout << " Masukkan  Nama : ";
+        // Meminta pengguna untuk memasukkan informasi pasien
+        cout << "Masukkan nama pasien: ";
         cin >> nama;
 
-        cout << " Masukkan Usia : ";
-        cin >> usia;
-
-        cout << " Masukkan ID : ";
+        cout << "Masukkan nomor identitas pasien: ";
         cin >> nomor_identitas;
 
-        cout << " Masukkan Kontak : ";
-        cin >> kontak;
+        cout << "Masukkan usia pasien: ";
+        cin >> usia;
 
-        cout << " Masukkan Alamat : ";
-        cin >> alamat;
+        cout << "Masukkan alamat pasien: ";
+        cin.ignore(); // Membersihkan buffer
+        getline(cin, alamat);
 
-        // Menulis data ke file dengan mode append
-        dataPasien << "\t Data-data Pasien \n";
-        dataPasien << "\n Nama   : " <<  nama;
-        dataPasien << "\n Usia   : " <<  usia;
-        dataPasien << "\n Id     : " <<  nomor_identitas;
-        dataPasien << "\n Kontak : " <<  kontak;
-        dataPasien << "\n Alamat : " <<  alamat;
-        dataPasien << "\n <======================> \n";
+        cout << "Masukkan kontak pasien: ";
+        getline(cin, kontak);
 
-        // Tanyakan apakah ingin menambahkan data lagi
-        cout << "Ingin menambahkan data pasien lagi? (y/n): ";
-        cin >> jawab;
-    } while (jawab == 'y' || jawab == 'Y');
-
-    // Tutup file setelah selesai menulis
-    dataPasien.close();
-
-    cout << endl << "Data berhasil disimpan." << endl;
-    return 0;
-}
+        // Tampilkan informasi biodata yang telah dimasukkan
+        cout << "\n============================" << endl;
+        cout << "Selamat datang, " << nama << "! Berikut adalah biodata Anda: " << endl;
+        cout << "Nama: " << nama << endl;
+        cout << "Nomor Identitas: " << nomor_identitas << endl;
+        cout << "Usia: " << usia << endl;
+        cout << "Alamat: " << alamat << endl;
+        cout << "Kontak: " << kontak << endl;
+        cout << "\n============================" << endl;
+    }
 
     // Getter untuk mendapatkan informasi pasien
     string getNama() { return nama; }

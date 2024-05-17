@@ -1,0 +1,15 @@
+===== DATA PASIEN =====
+Username: adid
+Password: adid2403
+===== DATA PASIEN =====
+Username: adid24
+Password: suka2004
+===== DATA PASIEN =====
+Username: adudu
+Password: adudu24
+===== DATA PASIEN =====
+Username: adid,Password: adid2403
+===== DATA PASIEN =====
+joyo,joyo2004
+adid adid2403
+joyo joyo2004
