@@ -209,56 +209,54 @@ public:
     }
 
     // Fungsi untuk memasukkan biodata pasien
-    void inputBiodata() {
-// Buka file dengan mode append
-    ofstream dataPasien("dataPasien.txt", ios::app);
-
-    // Periksa apakah file berhasil dibuka
-    if (!dataPasien.is_open()) {
-        cout << "Gagal membuka file." << endl;
-        return 1;
-    }
-
-    // Buat menambahkan data pasien baru
-    char jawab;
-    do {
-        cout << "\n\t Cetak Data Pasien ke Dalam File txt \n\n";
-
-        cout << " Masukkan  Nama : ";
+   void inputBiodata() {
+        // Meminta pengguna untuk memasukkan informasi pasien
+        cout << "Masukkan nama pasien: ";
         cin >> nama;
 
-        cout << " Masukkan Usia : ";
-        cin >> usia;
-
-        cout << " Masukkan ID : ";
+        cout << "Masukkan nomor identitas pasien: ";
         cin >> nomor_identitas;
 
-        cout << " Masukkan Kontak : ";
-        cin >> kontak;
+        cout << "Masukkan usia pasien: ";
+        cin >> usia;
 
-        cout << " Masukkan Alamat : ";
-        cin >> alamat;
+        cout << "Masukkan alamat pasien: ";
+        cin.ignore(); // Membersihkan buffer
+        getline(cin, alamat);
 
-        // Menulis data ke file dengan mode append
-        dataPasien << "\t Data-data Pasien \n";
-        dataPasien << "\n Nama   : " <<  nama;
-        dataPasien << "\n Usia   : " <<  usia;
-        dataPasien << "\n Id     : " <<  nomor_identitas;
-        dataPasien << "\n Kontak : " <<  kontak;
-        dataPasien << "\n Alamat : " <<  alamat;
-        dataPasien << "\n <======================> \n";
+        cout << "Masukkan kontak pasien: ";
+        getline(cin, kontak);
 
-        // Tanyakan apakah ingin menambahkan data lagi
-        cout << "Ingin menambahkan data pasien lagi? (y/n): ";
-        cin >> jawab;
-    } while (jawab == 'y' || jawab == 'Y');
+        // Tampilkan informasi biodata yang telah dimasukkan
+        cout << "\n============================" << endl;
+        cout << "Selamat datang, " << nama << "! Berikut adalah biodata Anda: " << endl;
+        cout << "Nama: " << nama << endl;
+        cout << "Nomor Identitas: " << nomor_identitas << endl;
+        cout << "Usia: " << usia << endl;
+        cout << "Alamat: " << alamat << endl;
+        cout << "Kontak: " << kontak << endl;
+        cout << "\n============================" << endl;
 
-    // Tutup file setelah selesai menulis
-    dataPasien.close();
+        // Simpan data ke dalam file
+        saveToFile();
+    }
 
-    cout << endl << "Data berhasil disimpan." << endl;
-    return 0;
-}
+    // Fungsi untuk menyimpan data ke dalam file
+    void saveToFile() {
+        ofstream file("biodata.txt", ios::app); // Menambahkan ke akhir file jika file sudah ada
+        if (file.is_open()) {
+            file << "Nama: " << nama << endl;
+            file << "Nomor Identitas: " << nomor_identitas << endl;
+            file << "Usia: " << usia << endl;
+            file << "Alamat: " << alamat << endl;
+            file << "Kontak: " << kontak << endl;
+            file << "============================" << endl;
+            file.close();
+            cout << "Biodata berhasil disimpan ke dalam file biodata.txt" << endl;
+        } else {
+            cout << "Gagal membuka file!" << endl;
+        }
+    }
 
     // Getter untuk mendapatkan informasi pasien
     string getNama() { return nama; }
@@ -272,6 +270,44 @@ public:
 // Fungsi untuk memasukkan biodata dari fungsi Pasien
 void inputBiodataPasien(Pasien& pasien) {
     pasien.inputBiodata();
+}
+
+// Fungsi untuk membaca biodata dari file
+Pasien loadBiodataFromFile(const string& nama_pasien) {
+    ifstream file("biodata.txt");
+    if (!file.is_open()) {
+        cout << "Gagal membuka file!" << endl;
+        return Pasien();
+    }
+
+    string line, nama, nomor_identitas, alamat, kontak;
+    int usia;
+    bool found = false;
+
+    while (getline(file, line)) {
+        if (line.find("Nama: " + nama_pasien) != string::npos) {
+            found = true;
+            nama = line.substr(6); // Ambil substring setelah "Nama: "
+            getline(file, line);
+            nomor_identitas = line.substr(18); // Ambil substring setelah "Nomor Identitas: "
+            getline(file, line);
+            usia = stoi(line.substr(6)); // Ambil usia setelah "Usia: "
+            getline(file, line);
+            alamat = line.substr(8); // Ambil substring setelah "Alamat: "
+            getline(file, line);
+            kontak = line.substr(8); // Ambil substring setelah "Kontak: "
+            break;
+        }
+    }
+
+    file.close();
+
+    if (found) {
+        return Pasien(nama, nomor_identitas, usia, alamat, kontak);
+    } else {
+        cout << "Biodata dengan nama " << nama_pasien << " tidak ditemukan." << endl;
+        return Pasien();
+    }
 }
 
 
@@ -395,22 +431,15 @@ void viewManajemenObat() {
     cin >> jumlahPasien;
 
     for (int i = 0; i < jumlahPasien; ++i) {
-        string nama, nomor_identitas, alamat, kontak;
-        int usia;
-        
-        cout << "Masukkan data pasien ke-" << i + 1 << ":" << endl;
-        cout << "Nama: ";
-        cin >> nama;
-        cout << "Nomor Identitas: ";
-        cin >> nomor_identitas;
-        cout << "Usia: ";
-        cin >> usia;
-        cout << "Alamat: ";
-        cin >> alamat;
-        cout << "Kontak: ";
-        cin >> kontak;
-
-        daftar_pasien.push_back(Pasien(nama, nomor_identitas, usia, alamat, kontak));
+        string nama_pasien;
+            cout << "Masukkan nama pasien yang ingin dimuat: ";
+            cin >> nama_pasien;
+            Pasien pasien = loadBiodataFromFile(nama_pasien);
+            if (!pasien.getNama().empty()) {
+                daftar_pasien.push_back(pasien);
+            } else {
+                cout << "Gagal memuat biodata pasien." << endl;
+            }
     }
 
     for (int i = 0; i < daftar_pasien.size(); ++i) {
@@ -543,10 +572,10 @@ Task getTaskFromUser() {
                 if (dueDate >= today) {
                     break;
                 } else {
-                    cout << "Tanggal yang dimasukkan tidak valid. Harap masukkan tanggal yang tidak sebelum hari ini." << endl;
+                    cout << "Tanggal yang dimasukkan tidak valid. Harap masukkan tanggal yang ada di masa depan." << endl;
                 }
             } else {
-                cout << "Format tanggal dan waktu tidak valid. Harap masukkan dalam format YYYY-MM-DD HH:MM." << endl;
+                cout << "Tanggal yang dimasukkan tidak valid. Harap masukkan tanggal yang ada di masa depan." << endl;
             }
         } else {
             cout << "Format tanggal dan waktu tidak valid. Harap masukkan dalam format YYYY-MM-DD HH:MM." << endl;
