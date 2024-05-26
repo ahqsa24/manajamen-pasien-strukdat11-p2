@@ -5,3 +5,10 @@ Dokter:
 Jadwal Perawatan: 
 Batas Waktu: 01-01-1970 07:00:00
 ============================
+Nama Pasien: 
+Nama Jadwal: 
+Deskripsi: 
+Dokter: 
+Jadwal Perawatan: 
+Batas Waktu: 01-01-1970 07:00:00
+============================

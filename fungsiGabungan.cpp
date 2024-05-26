@@ -225,21 +225,6 @@ public:
         }
     }
 
-    void saveRiwayatObatToFile() const {
-        ofstream file("riwayat_obat.txt", ios::app);
-        if (file.is_open()) {
-            file << "Nama: " << nama << endl;
-            for (const auto& obat : riwayatObat) {
-                file << "Obat: " << obat << endl;
-            }
-            file << "============================" << endl;
-            file.close();
-            cout << "Riwayat obat berhasil disimpan ke dalam file " << nama << "riwayat_obat.txt" << endl;
-        } else {
-            cout << "Gagal membuka file!" << endl;
-        }
-    }
-
     string getNama() const {
         return nama;
     }
@@ -314,6 +299,14 @@ public:
             for (const auto& penyakit : riwayatPenyakit) {
                 tempFile << penyakit << endl;
             }
+            
+            // Riwayat Obat
+            tempFile << "Riwayat Obat:" << endl;
+            for (const auto &obat : riwayatObat)
+                {
+                    tempFile << obat << endl;
+                }
+
             tempFile << "============================" << endl;
         }
     }
@@ -588,7 +581,7 @@ void viewManajemenObat() {
 
     for (int i = 0; i < daftar_pasien.size(); ++i) {
         daftar_pasien[i].tampilkanRiwayatObat();
-        daftar_pasien[i].saveRiwayatObatToFile();
+        daftar_pasien[i].saveToFile();
     }
 }
 

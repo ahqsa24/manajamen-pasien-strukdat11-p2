@@ -39,6 +39,7 @@ Usia: 20
 Alamat: Jakarta
 Kontak: 0812
 Riwayat Penyakit:
-bekasi
 bogor
+Riwayat Obat:
+Tenofovir
 ============================
