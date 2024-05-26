@@ -279,77 +279,66 @@ public:
 
     // Fungsi untuk menyimpan data ke dalam file
     void saveToFile() {
-        ofstream file("biodata.txt", ios::app); // Menambahkan ke akhir file jika file sudah ada
-        if (file.is_open()) {
-            file << "Nama: " << nama << endl;
-            file << "Nomor Identitas: " << nomor_identitas << endl;
-            file << "Usia: " << usia << endl;
-            file << "Alamat: " << alamat << endl;
-            file << "Kontak: " << kontak << endl;
+    ifstream inFile("biodata.txt");
+    ofstream tempFile("temp.txt");
+
+    if (!inFile.is_open() || !tempFile.is_open()) {
+        cout << "Gagal membuka file!" << endl;
+        return;
+    }
+
+    string line;
+    bool found = false;
+
+    while (getline(inFile, line)) {
+        tempFile << line << endl;
+        if (line.find("Nama: " + nama) != string::npos) {
+            found = true;
+            getline(inFile, line); // Nomor Identitas
+            tempFile << line << endl;
+            getline(inFile, line); // Usia
+            tempFile << line << endl;
+            getline(inFile, line); // Alamat
+            tempFile << line << endl;
+            getline(inFile, line); // Kontak
+            tempFile << line << endl;
+
+            // Riwayat Penyakit
+            getline(inFile, line); // "Riwayat Penyakit:"
+            tempFile << line << endl;
+
+            // Skip old riwayat penyakit
+            while (getline(inFile, line) && !line.empty()) {}
+
+            // Write new riwayat penyakit
             for (const auto& penyakit : riwayatPenyakit) {
-                file << "Penyakit: " << penyakit << endl;
+                tempFile << penyakit << endl;
             }
-            file << "============================" << endl;
-            file.close();
-            cout << "Biodata berhasil disimpan ke dalam file biodata.txt" << endl;
-        } else {
-            cout << "Gagal membuka file!" << endl;
+            tempFile << "============================" << endl;
         }
     }
 
-    // Fungsi untuk memperbarui data ke dalam file
-    void updateFile() {
-        ifstream inFile("biodata.txt");
-        ofstream tempFile("temp.txt");
-
-        if (!inFile.is_open() || !tempFile.is_open()) {
-            cout << "Gagal membuka file!" << endl;
-            return;
+    // If the patient data is not found, add new entry
+    if (!found) {
+        tempFile << "Nama: " << nama << endl;
+        tempFile << "Nomor Identitas: " << nomor_identitas << endl;
+        tempFile << "Usia: " << usia << endl;
+        tempFile << "Alamat: " << alamat << endl;
+        tempFile << "Kontak: " << kontak << endl;
+        tempFile << "Riwayat Penyakit:" << endl;
+        for (const auto& penyakit : riwayatPenyakit) {
+            tempFile << penyakit << endl;
         }
-
-        string line;
-        bool found = false;
-
-        while (getline(inFile, line)) {
-            if (line == "Nama: " + nama) {
-                found = true;
-                tempFile << line << endl;
-                getline(inFile, line);
-                tempFile << line << endl; // Nomor Identitas
-                getline(inFile, line);
-                tempFile << line << endl; // Usia
-                getline(inFile, line);
-                tempFile << line << endl; // Alamat
-                getline(inFile, line);
-                tempFile << line << endl; // Kontak
-
-                for (const auto& penyakit : riwayatPenyakit) {
-                    tempFile << "Penyakit: " << penyakit << endl;
-                }
-
-                while (getline(inFile, line) && line != "============================") {
-                    // Skip old penyakit entries
-                }
-
-                tempFile << "============================" << endl;
-            } else {
-                tempFile << line << endl;
-            }
-        }
-
-        inFile.close();
-        tempFile.close();
-
-        remove("biodata.txt");
-        rename("temp.txt", "biodata.txt");
-
-        if (!found) {
-            saveToFile(); // Save new entry if not found
-        }
-
-        cout << "Data pasien berhasil diperbarui." << endl;
+        tempFile << "============================" << endl;
     }
 
+    inFile.close();
+    tempFile.close();
+    remove("biodata.txt");
+    rename("temp.txt", "biodata.txt");
+
+    cout << "Biodata berhasil disimpan ke dalam file biodata.txt" << endl;
+    }
 
     // Getter untuk mendapatkan informasi pasien
     string getNama() { return nama; }
@@ -397,10 +386,12 @@ Pasien loadBiodataFromFile(const string& nama_pasien) {
             alamat = line.substr(8); // Ambil substring setelah "Alamat: "
             getline(file, line);
             kontak = line.substr(8); // Ambil substring setelah "Kontak: "
+            getline(file, line); // Pindah ke baris "Riwayat Penyakit:"
 
             // Membaca riwayat penyakit
-            while (getline(file, line) && line.find("Penyakit: ") != string::npos) {
-                riwayatPenyakit.push_back(line.substr(10)); // Ambil substring setelah "Penyakit: "
+            getline(file, line); // "Riwayat Penyakit:"
+            while (getline(file, line) && line != "============================") {
+                riwayatPenyakit.push_back(line);
             }
             break;
         }
@@ -410,7 +401,9 @@ Pasien loadBiodataFromFile(const string& nama_pasien) {
 
     if (found) {
         Pasien pasien(nama, nomor_identitas, usia, alamat, kontak);
-        pasien.setRiwayatPenyakit(riwayatPenyakit);
+        for (const auto& penyakit : riwayatPenyakit) {
+            pasien.tambahRiwayatPenyakit(penyakit);
+        }
         return pasien;
     } else {
         cout << "Biodata dengan nama " << nama_pasien << " tidak ditemukan." << endl;
@@ -422,6 +415,7 @@ Pasien loadBiodataFromFile(const string& nama_pasien) {
 void catatRiwayatPenyakit(string riwayat[], int& jumlah_riwayat) {
     cout << "Masukkan nama pasien: ";
     string nama_pasien;
+    cin.ignore();
     cin >> nama_pasien;
 
     // Load biodata for the specified patient
@@ -438,12 +432,11 @@ void catatRiwayatPenyakit(string riwayat[], int& jumlah_riwayat) {
             }
             // Menambahkan riwayat penyakit ke pasien yang sesuai
             pasien.tambahRiwayatPenyakit(penyakit);
+            jumlah_riwayat++;
         }
 
         pasien.tampilkanRiwayatPenyakit();
-
-        // Simpan data pasien yang telah diperbarui ke dalam file
-        pasien.updateFile();
+        pasien.saveToFile();
     } else {
         cout << "Biodata pasien tidak ditemukan. Mohon masukkan nama yang sudah terdaftar." << endl;
     }
@@ -649,6 +642,8 @@ Task getTaskFromUser() {
     string name, description, nama_pasien;
     int doctorChoice;
     vector<string> doctors = {"Dr. Tirta Saputra", "Dr. Boyke Prayoga", "Dr. Noorman Kamaru"};
+
+    Task task("", "", 0, "", "");
 
     while (true) {
         cout << "Nama Pasien: ";
@@ -915,8 +910,6 @@ void viewMainMenu()
         case 2:
             {
                 Pasien pasien;
-                inputBiodataPasien(pasien);
-
                 // Menyimpan riwayat penyakit pasien
                 string riwayat[MAX_RIWAYAT];
                 int jumlah_riwayat = 0;

@@ -4,18 +4,41 @@ Usia: 12
 Alamat: Bogor
 Kontak: 0812
 Penyakit: batuk
-Penyakit: pilek
 ============================
-Nama: Adid
+Nama: Sultan
+Nomor Identitas: 123
+Usia: 12
+Alamat: Bogor
+Kontak: 0812
+Riwayat Penyakit:
+batuk
+pilek
+============================
+Nama: Ajisaka
 Nomor Identitas: 123
 Usia: 19
 Alamat: Bogor
 Kontak: 0812
+Riwayat Penyakit:
+bogor
+bekasi
 ============================
-Nama: Nurul
+Nama: Rohim
 Nomor Identitas: 123
 Usia: 19
-Alamat: 20
+Alamat: Cianjur
 Kontak: 0812
-Penyakit: demam
+Riwayat Penyakit:
+
+bogor
+bekasi
+============================
+Nama: Ansel
+Nomor Identitas: 123
+Usia: 20
+Alamat: Jakarta
+Kontak: 0812
+Riwayat Penyakit:
+bekasi
+bogor
 ============================
