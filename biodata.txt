@@ -1,0 +1,18 @@
+Nama: Fari
+Nomor Identitas: 123
+Usia: 20
+Alamat: Bogor
+Kontak: 081
+============================
+Nama: Adid
+Nomor Identitas: 123
+Usia: 20
+Alamat: Bogor
+Kontak: 081
+============================
+Nama: Dwiyne
+Nomor Identitas: 123
+Usia: 20
+Alamat: Bogor
+Kontak: 0812
+============================

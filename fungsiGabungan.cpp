@@ -9,6 +9,9 @@
 
 using namespace std;
 
+string nama_pasien; // Variabel global untuk menyimpan nama pasien
+bool isBiodataLoaded = false; // Variabel global untuk menandai apakah biodata sudah dimuat atau tidak
+
 // Hash Table
 struct HashTable
 {
@@ -185,6 +188,7 @@ private:
     string alamat;
     string kontak;
     vector<string> riwayatObat;
+    vector<string> riwayatPenyakit;
 
 public:
     // Konstruktor untuk inisialisasi data pasien
@@ -193,6 +197,19 @@ public:
     Pasien(const string& _nama, const string& _nomor_identitas, int _usia, const string& _alamat, const string& _kontak)
         : nama(_nama), nomor_identitas(_nomor_identitas), usia(_usia), alamat(_alamat), kontak(_kontak) {
         // Constructor body
+    }
+
+    // Method to add riwayat penyakit
+    void tambahRiwayatPenyakit(const string& penyakit) {
+        riwayatPenyakit.push_back(penyakit);
+    }
+
+    // Method to display riwayat penyakit
+    void tampilkanRiwayatPenyakit() const {
+        cout << "Riwayat penyakit untuk pasien " << nama << ":" << endl;
+        for (const auto& penyakit : riwayatPenyakit) {
+            cout << penyakit << endl;
+        }
     }
 
     // Method to add riwayat obat
@@ -314,7 +331,25 @@ Pasien loadBiodataFromFile(const string& nama_pasien) {
 // Fungsi 2 (Riwayat Penyakit) Start Here
 
 void catatRiwayatPenyakit(string riwayat[], int& jumlah_riwayat) {
-    Pasien pasien; // Declare an instance of the Pasien class
+    bool biodata_found = false;
+    Pasien pasien;
+
+    while (!biodata_found) {
+        cout << "Masukkan nama pasien: ";
+        string nama_pasien;
+        cin >> nama_pasien;
+
+        // Load biodata for the specified patient
+        pasien = loadBiodataFromFile(nama_pasien);
+
+        // Check if biodata is loaded
+        if (!pasien.getNama().empty()) {
+            biodata_found = true;
+        } else {
+            cout << "Biodata pasien tidak ditemukan. Mohon masukkan nama yang sudah terdaftar." << endl;
+        }
+    }
+
     cout << "Masukkan riwayat penyakit (Ketik 'selesai' untuk mengakhiri):" << endl;
     string penyakit;
     while (true) {
@@ -322,14 +357,12 @@ void catatRiwayatPenyakit(string riwayat[], int& jumlah_riwayat) {
         if (penyakit == "selesai") {
             break;
         }
-        riwayat[jumlah_riwayat] = penyakit;
+        // Menambahkan riwayat penyakit ke pasien yang sesuai
+        pasien.tambahRiwayatPenyakit(penyakit);
         jumlah_riwayat++;
     }
 
-    cout << "\nRiwayat Penyakit Pasien " << pasien.getNama() << ":" << endl;
-    for (int i = 0; i < jumlahRiwayat; i++) {
-        cout << riwayatPenyakit[i] << endl;
-    }
+    pasien.tampilkanRiwayatPenyakit();
 }
 
 // Fungsi 3 (Riwayat Obat) Start Here
@@ -496,6 +529,7 @@ public:
         : name(name), description(description), dueDate(dueDate), doctorName(doctorName), nurseSchedule(nurseSchedule) {}
 
     void displayTask() const {
+        cout << "Nama Pasien: " << nama_pasien << endl;
         cout << "Nama Jadwal: " << name << endl;
         cout << "Deskripsi: " << description << endl;
         cout << "Dokter: " << doctorName << endl;
@@ -509,83 +543,117 @@ public:
 
 // Fungsi untuk mendapatkan input tugas baru dari pengguna
 Task getTaskFromUser() {
-    string name, description, nurseSchedule;
+    string name, description, nama_pasien;
     int doctorChoice;
     vector<string> doctors = {"Dr. Tirta Saputra", "Dr. Boyke Prayoga", "Dr. Noorman Kamaru"};
-    
-    cout << "Nama Jadwal: ";
-    getline(cin, name);
-    cout << "Deskripsi: ";
-    getline(cin, description);
 
-    // Pilihan nama dokter
-    cout << "Pilih nama dokter:" << endl;
-    for (int i = 0; i < doctors.size(); ++i) {
-        cout << i+1 << ". " << doctors[i] << endl;
-    }
-    cout << "Pilihan Anda: ";
-    cin >> doctorChoice;
-    cin.ignore(); // Membersihkan buffer
-    if (doctorChoice < 1 || doctorChoice > doctors.size()) {
-        cout << "Pilihan tidak valid, menggunakan default." << endl;
-        doctorChoice = 1;
-    }
-    string doctorName = doctors[doctorChoice - 1];
-
-    // Input tanggal dan jam
-    time_t now = time(0);
-    tm *now_tm = localtime(&now);
-    now_tm->tm_hour = 0;
-    now_tm->tm_min = 0;
-    now_tm->tm_sec = 0;
-    time_t today = mktime(now_tm);
-
-    time_t dueDate;
     while (true) {
-        string dateTimeInput;
-        cout << "Masukkan tanggal dan waktu (YYYY-MM-DD HH:MM): ";
-        getline(cin, dateTimeInput);
+        cout << "Nama Pasien: ";
+        getline(cin, nama_pasien);
 
-        istringstream iss(dateTimeInput);
-        string datePart, timePart;
-        if (getline(iss, datePart, ' ') && getline(iss, timePart)) {
-            istringstream dateStream(datePart);
-            istringstream timeStream(timePart);
-            int year, month, day, hour, minute;
-            char dash1, dash2, colon;
+        // Load biodata pasien dari file
+        Pasien pasien = loadBiodataFromFile(nama_pasien);
 
-            if ((dateStream >> year >> dash1 >> month >> dash2 >> day) && 
-                (dash1 == '-' && dash2 == '-') &&
-                (timeStream >> hour >> colon >> minute) &&
-                (colon == ':')) {
-
-                struct tm tm_time = {0};
-                tm_time.tm_year = year - 1900;
-                tm_time.tm_mon = month - 1;
-                tm_time.tm_mday = day;
-                tm_time.tm_hour = hour;
-                tm_time.tm_min = minute;
-                tm_time.tm_sec = 0;
-
-                dueDate = mktime(&tm_time);
-
-                if (dueDate >= today) {
-                    break;
-                } else {
-                    cout << "Tanggal yang dimasukkan tidak valid. Harap masukkan tanggal yang ada di masa depan." << endl;
-                }
-            } else {
-                cout << "Tanggal yang dimasukkan tidak valid. Harap masukkan tanggal yang ada di masa depan." << endl;
+        if (pasien.getNama().empty()) { // Jika biodata tidak ditemukan
+            cout << "Biodata pasien tidak ditemukan." << endl;
+            cout << "Silakan masukkan nama pasien yang sudah ada dalam file biodata.txt." << endl;
+            cout << "Apakah Anda ingin mencoba lagi? (y/n): ";
+            char tryAgain;
+            cin >> tryAgain;
+            cin.ignore(); // Membersihkan buffer
+            if (tryAgain != 'y' && tryAgain != 'Y') {
+                // Jika pengguna tidak ingin mencoba lagi, keluar dari fungsi
+                return Task("", "", 0, "", "");
             }
         } else {
-            cout << "Format tanggal dan waktu tidak valid. Harap masukkan dalam format YYYY-MM-DD HH:MM." << endl;
+            // Lanjutkan dengan input jadwal tanpa menampilkan deskripsi atau dokter
+            cout << "Nama Jadwal: ";
+            getline(cin, name);
+            cout << "Deskripsi: ";
+            getline(cin, description);
+
+            // Pilihan nama dokter
+            cout << "Pilih nama dokter:" << endl;
+            for (int i = 0; i < doctors.size(); ++i) {
+                cout << i+1 << ". " << doctors[i] << endl;
+            }
+            cout << "Pilihan Anda: ";
+            cin >> doctorChoice;
+            cin.ignore(); // Membersihkan buffer
+            if (doctorChoice < 1 || doctorChoice > doctors.size()) {
+                cout << "Pilihan tidak valid, menggunakan default." << endl;
+                doctorChoice = 1;
+            }
+            string doctorName = doctors[doctorChoice - 1];
+
+            // Batasi tanggal hingga satu bulan ke depan
+            time_t now = time(0);
+            tm now_tm = *localtime(&now);
+            tm due_tm = now_tm;
+            due_tm.tm_mon += 1; // Tambah satu bulan
+            time_t due_date_limit = mktime(&due_tm);
+
+            // Input tanggal dan jam
+            time_t dueDate;
+            while (true) {
+                string dateTimeInput;
+                cout << "Masukkan tanggal (YYYY-MM-DD): ";
+                getline(cin, dateTimeInput);
+
+                istringstream iss(dateTimeInput);
+                int year, month, day;
+                char dash1, dash2;
+
+                if ((iss >> year >> dash1 >> month >> dash2 >> day) && 
+                    (dash1 == '-' && dash2 == '-') &&
+                    (year >= now_tm.tm_year + 1900 && year <= due_tm.tm_year + 1900) && // Pastikan tahun dalam rentang yang valid
+                    (month >= 1 && month <= 12) && // Pastikan bulan dalam rentang yang valid
+                    (day >= 1 && day <= 31)) { // Pastikan tanggal dalam rentang yang valid
+
+                    struct tm tm_time = {0};
+                    tm_time.tm_year = year - 1900;
+                    tm_time.tm_mon = month - 1;
+                    tm_time.tm_mday = day;
+                    tm_time.tm_hour = 0; // Tanggal, jadi jam diatur ke 00:00:00
+
+                    dueDate = mktime(&tm_time);
+
+                    if (dueDate >= now && dueDate <= due_date_limit) {
+                        break;
+                    } else {
+                        cout << "Tanggal yang dimasukkan tidak valid. Harap masukkan tanggal antara hari ini dan satu bulan ke depan." << endl;
+                    }
+                } else {
+                    cout << "Format tanggal tidak valid. Harap masukkan dalam format YYYY-MM-DD." << endl;
+                }
+            }
+
+            // Batasi jam untuk setiap dokter
+            string nurseSchedule;
+            vector<string> availableSchedules = {"10:00", "12:00", "14:00", "16:00"};
+
+            cout << "Pilih jadwal perawatan (hh:mm):" << endl;
+            for (int i = 0; i < availableSchedules.size(); ++i) {
+                cout << i+1 << ". " << availableSchedules[i] << endl;
+            }
+            int scheduleChoice;
+            cout << "Pilihan Anda: ";
+            cin >> scheduleChoice;
+            cin.ignore(); // Membersihkan buffer
+            if (scheduleChoice < 1 || scheduleChoice > availableSchedules.size()) {
+                cout << "Pilihan tidak valid, menggunakan default." << endl;
+                scheduleChoice = 1;
+            }
+            nurseSchedule = availableSchedules[scheduleChoice - 1];
+
+            cout << "Jadwal Perawatan: " << setfill('0') << setw(2) << localtime(&dueDate)->tm_mday << "-" << setfill('0') << setw(2) << localtime(&dueDate)->tm_mon + 1 << "-" << localtime(&dueDate)->tm_year + 1900 << " " << setfill('0') << setw(2) << localtime(&dueDate)->tm_hour << ":" << setfill('0') << setw(2) << localtime(&dueDate)->tm_min << endl;
+
+            return Task(name, description, dueDate, doctorName, nurseSchedule);
         }
     }
-
-    cout << "Jadwal Perawatan: " << setfill('0') << setw(2) << localtime(&dueDate)->tm_mday << "-" << setfill('0') << setw(2) << localtime(&dueDate)->tm_mon + 1 << "-" << localtime(&dueDate)->tm_year + 1900 << " " << setfill('0') << setw(2) << localtime(&dueDate)->tm_hour << ":" << setfill('0') << setw(2) << localtime(&dueDate)->tm_min << endl;
-
-    return Task(name, description, dueDate, doctorName, nurseSchedule);
 }
+
+
 
 // Fungsi untuk menampilkan pengingat
 void reminder(const Task& task) {
@@ -655,6 +723,9 @@ void viewPencatatanJadwal() {
                     for (const auto& task : tasks) {
                         cout << index << ". ";
                         task.displayTask();
+                        if (isBiodataLoaded) {
+                            cout << "Nama Pasien: " << nama_pasien << endl;
+                        }
                         index++;
                     }
                 } else {
@@ -676,6 +747,27 @@ void viewPencatatanJadwal() {
         if (task.dueDate < currentTime) {
             reminder(task);
         }
+    }
+}
+
+// Fungsi 6: Print data pasien
+void viewDataPasien() {
+    string namaPasien;
+    cout << "Masukkan nama pasien: ";
+    cin >> namaPasien;
+
+    // Load biodata pasien dari file
+    Pasien pasien = loadBiodataFromFile(namaPasien);
+
+    if (!pasien.getNama().empty()) {
+        cout << "Data Pasien untuk " << pasien.getNama() << ":" << endl;
+        pasien.tampilkanRiwayatPenyakit();
+        pasien.tampilkanRiwayatObat();
+        cout << "\nJadwal Perawatan:" << endl;
+        // Load jadwal perawatan pasien dari file
+        viewPencatatanJadwal();
+    } else {
+        cout << "Data pasien tidak ditemukan." << endl;
     }
 }
 
@@ -701,8 +793,9 @@ void viewMainMenu()
         cout << "3. Manajemen Obat" << endl;
         cout << "4. Riwayat Obat" << endl;
         cout << "5. Pencatatan Jadwal" << endl;
-        cout << "6. Simpan & Keluar" << endl;
-        cout << "Pilih menu [1/2/3/4/5/6] : ";
+        cout << "6. Lihat Data Pasien" << endl;
+        cout << "7. Simpan & Keluar" << endl;
+        cout << "Pilih menu [1/2/3/4/5/6/7] : ";
         cin >> choice;
 
         switch (choice)
@@ -733,6 +826,10 @@ void viewMainMenu()
             viewPencatatanJadwal();
             break;
         case 6:
+            // Panggil fungsi untuk lihat data pasein
+            viewDataPasien();
+            break;
+        case 7:
             // simpanDataPasienKeFile(daftar_pasien, fileName);
             cout << "Data berhasil disimpan. Anda berhasil logout." << endl;
             return;
