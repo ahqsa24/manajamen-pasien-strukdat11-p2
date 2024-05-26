@@ -225,6 +225,25 @@ public:
         }
     }
 
+    void saveRiwayatObatToFile() const {
+        ofstream file("riwayat_obat.txt", ios::app);
+        if (file.is_open()) {
+            file << "Nama: " << nama << endl;
+            for (const auto& obat : riwayatObat) {
+                file << "Obat: " << obat << endl;
+            }
+            file << "============================" << endl;
+            file.close();
+            cout << "Riwayat obat berhasil disimpan ke dalam file " << nama << "riwayat_obat.txt" << endl;
+        } else {
+            cout << "Gagal membuka file!" << endl;
+        }
+    }
+
+    string getNama() const {
+        return nama;
+    }
+
     // Fungsi untuk memasukkan biodata pasien
     void inputBiodata() {
         // Meminta pengguna untuk memasukkan informasi pasien
@@ -398,6 +417,7 @@ Pasien loadBiodataFromFile(const string& nama_pasien) {
         return Pasien();
     }
 }
+
 // Fungsi 2 untuk mencatat riwayat penyakit
 void catatRiwayatPenyakit(string riwayat[], int& jumlah_riwayat) {
     cout << "Masukkan nama pasien: ";
@@ -518,7 +538,6 @@ void viewRiwayatObat(ManajemenObat& manager, Pasien& pasien) {
 }
 
 // Fungsi 4 (Manajemen Obat) Start Here
-
 void viewManajemenObat() {
     ManajemenObat manager;
     vector<Pasien> daftar_pasien;
@@ -529,14 +548,14 @@ void viewManajemenObat() {
 
     for (int i = 0; i < jumlahPasien; ++i) {
         string nama_pasien;
-            cout << "Masukkan nama pasien yang ingin dimuat: ";
-            cin >> nama_pasien;
-            Pasien pasien = loadBiodataFromFile(nama_pasien);
-            if (!pasien.getNama().empty()) {
-                daftar_pasien.push_back(pasien);
-            } else {
-                cout << "Gagal memuat biodata pasien." << endl;
-            }
+        cout << "Masukkan nama pasien yang ingin dimuat: ";
+        cin >> nama_pasien;
+        Pasien pasien = loadBiodataFromFile(nama_pasien);
+        if (!pasien.getNama().empty()) {
+            daftar_pasien.push_back(pasien);
+        } else {
+            cout << "Gagal memuat biodata pasien." << endl;
+        }
     }
 
     for (int i = 0; i < daftar_pasien.size(); ++i) {
@@ -576,9 +595,9 @@ void viewManajemenObat() {
 
     for (int i = 0; i < daftar_pasien.size(); ++i) {
         daftar_pasien[i].tampilkanRiwayatObat();
+        daftar_pasien[i].saveRiwayatObatToFile();
     }
 }
-
 
 // Fungsi 5 (Pencatatan Jadwal) Start Here
 class Task {
@@ -602,6 +621,26 @@ public:
         char buffer[80];
         strftime(buffer, 80, "Batas Waktu: %d-%m-%Y %I:%M:%S", timeinfo);
         cout << buffer << endl;
+    }
+
+    void saveToFile() const {
+        ofstream file(nama_pasien + "_jadwal.txt", ios::app);
+        if (file.is_open()) {
+            file << "Nama Pasien: " << nama_pasien << endl;
+            file << "Nama Jadwal: " << name << endl;
+            file << "Deskripsi: " << description << endl;
+            file << "Dokter: " << doctorName << endl;
+            file << "Jadwal Perawatan: " << nurseSchedule << endl;
+            struct tm *timeinfo = localtime(&dueDate);
+            char buffer[80];
+            strftime(buffer, 80, "Batas Waktu: %d-%m-%Y %I:%M:%S", timeinfo);
+            file << buffer << endl;
+            file << "============================" << endl;
+            file.close();
+            cout << "Jadwal berhasil disimpan ke dalam file " << nama_pasien << "_jadwal.txt" << endl;
+        } else {
+            cout << "Gagal membuka file!" << endl;
+        }
     }
 };
 
@@ -712,12 +751,12 @@ Task getTaskFromUser() {
 
             cout << "Jadwal Perawatan: " << setfill('0') << setw(2) << localtime(&dueDate)->tm_mday << "-" << setfill('0') << setw(2) << localtime(&dueDate)->tm_mon + 1 << "-" << localtime(&dueDate)->tm_year + 1900 << " " << setfill('0') << setw(2) << localtime(&dueDate)->tm_hour << ":" << setfill('0') << setw(2) << localtime(&dueDate)->tm_min << endl;
 
-            return Task(name, description, dueDate, doctorName, nurseSchedule);
+            Task Task(name, description, dueDate, doctorName, nurseSchedule);
+            task.saveToFile();
+            return task;
         }
     }
 }
-
-
 
 // Fungsi untuk menampilkan pengingat
 void reminder(const Task& task) {
