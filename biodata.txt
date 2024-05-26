@@ -1,18 +1,21 @@
 Nama: Fari
-Nomor Identitas: 123
-Usia: 20
+Nomor Identitas: 12
+Usia: 12
 Alamat: Bogor
-Kontak: 081
+Kontak: 0812
+Penyakit: batuk
+Penyakit: pilek
 ============================
 Nama: Adid
 Nomor Identitas: 123
-Usia: 20
-Alamat: Bogor
-Kontak: 081
-============================
-Nama: Dwiyne
-Nomor Identitas: 123
-Usia: 20
+Usia: 19
 Alamat: Bogor
 Kontak: 0812
+============================
+Nama: Nurul
+Nomor Identitas: 123
+Usia: 19
+Alamat: 20
+Kontak: 0812
+Penyakit: demam
 ============================
