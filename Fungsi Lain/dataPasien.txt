@@ -1,8 +1,0 @@
-	 Data-data Pasien 
-
- Nama   : adid
- Usia   : 19
- Id     : 123
- Kontak : 81
- Alamat : bogor
- <======================> 
