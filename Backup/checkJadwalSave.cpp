@@ -189,7 +189,13 @@ private:
     string kontak;
     vector<string> riwayatObat;
     vector<string> riwayatPenyakit;
-    vector<Task> catatanJadwal;
+
+    // Variabel anggota untuk detail jadwal
+    string namaJadwal;
+    string deskripsi;
+    string namaDokter;
+    string waktu;
+    time_t buffer;
 
 public:
     // Konstruktor untuk inisialisasi data pasien
@@ -263,9 +269,13 @@ public:
         saveToFile();
     }
 
-    void setDetailJadwal(const string& name, const string& description, const string& doctorName, const string& nurseSchedule, time_t dueDate) {
-        Task newTask(name, description, dueDate, doctorName, nurseSchedule);
-        catatanJadwal.push_back(newTask);
+    // Fungsi-fungsi untuk mengatur detail jadwal
+    void setDetailJadwal(const string& namaJadwal, const string& deskripsi, const string& namaDokter, const string& waktu, time_t buffer) {
+        this->namaJadwal = namaJadwal;
+        this->deskripsi = deskripsi;
+        this->namaDokter = namaDokter;
+        this->waktu = waktu;
+        this->buffer = buffer;
     }
 
     // Fungsi untuk menyimpan data ke dalam file
@@ -308,59 +318,34 @@ public:
             
             // Riwayat Obat
             tempFile << "Riwayat Obat:" << endl;
-            for (const auto& obat : riwayatObat) {
+            for (const auto &obat : riwayatObat) {
                 tempFile << obat << endl;
             }
 
             // Catatan Jadwal
             tempFile << "Catatan Jadwal:" << endl;
-            for (const auto& jadwal : catatanJadwal) {
-                tempFile << "Nama Jadwal: " << jadwal.name << endl;
-                tempFile << "Deskripsi: " << jadwal.description << endl;
-                tempFile << "Nama Dokter: " << jadwal.doctorName << endl;
-                struct tm *timeinfo = localtime(&jadwal.dueDate);
-                char buffer[80];
-                strftime(buffer, 80, "%d-%m-%Y %H:%M:%S", timeinfo);
-                tempFile << "Tanggal: " << buffer << endl;
-                tempFile << "Waktu: " << jadwal.nurseSchedule << endl;
-                tempFile << "============================" << endl;
-            }
+            tempFile << "Nama Jadwal: " << endl;
+            tempFile << "Deskripsi: " << deskripsi << endl;
+            tempFile << "Nama Dokter: " << namaDokter << endl;
+            tempFile << "Tanggal: " << buffer << endl;
+            tempFile << "Waktu: " << waktu << endl;
+
+            tempFile << "============================" << endl;
         }
     }
 
+    // If the patient data is not found, add new entry
     if (!found) {
-        // Add new patient data if not found
         tempFile << "Nama: " << nama << endl;
-        tempFile << "Nomor Identitas: " << nomorIdentitas << endl;
+        tempFile << "Nomor Identitas: " << nomor_identitas << endl;
         tempFile << "Usia: " << usia << endl;
         tempFile << "Alamat: " << alamat << endl;
         tempFile << "Kontak: " << kontak << endl;
-
-        // Riwayat Penyakit
         tempFile << "Riwayat Penyakit:" << endl;
         for (const auto& penyakit : riwayatPenyakit) {
             tempFile << penyakit << endl;
         }
-
-        // Riwayat Obat
-        tempFile << "Riwayat Obat:" << endl;
-        for (const auto& obat : riwayatObat) {
-            tempFile << obat << endl;
-        }
-
-        // Catatan Jadwal
-        tempFile << "Catatan Jadwal:" << endl;
-        for (const auto& jadwal : catatanJadwal) {
-            tempFile << "Nama Jadwal: " << jadwal.name << endl;
-            tempFile << "Deskripsi: " << jadwal.description << endl;
-            tempFile << "Nama Dokter: " << jadwal.doctorName << endl;
-            struct tm *timeinfo = localtime(&jadwal.dueDate);
-            char buffer[80];
-            strftime(buffer, 80, "%d-%m-%Y %H:%M:%S", timeinfo);
-            tempFile << "Tanggal: " << buffer << endl;
-            tempFile << "Waktu: " << jadwal.nurseSchedule << endl;
-            tempFile << "============================" << endl;
-        }
+        tempFile << "============================" << endl;
     }
 
     inFile.close();
@@ -400,67 +385,33 @@ Pasien loadBiodataFromFile(const string& nama_pasien) {
         return Pasien();
     }
 
-    string line;
-    string nama, nomorIdentitas, alamat, kontak;
-    int usia = 0;
+    string line, nama, nomor_identitas, alamat, kontak;
+    int usia;
     bool found = false;
     vector<string> riwayatPenyakit;
-    vector<string> riwayatObat;
-    vector<Task> catatanJadwal;
 
-    while (getline(inFile, line)) {
+    while (getline(file, line)) {
         if (line.find("Nama: " + nama_pasien) != string::npos) {
-            nama = nama_pasien;
+            found = true;
+            nama = line.substr(6); // Ambil substring setelah "Nama: "
+            getline(file, line);
+            nomor_identitas = line.substr(18); // Ambil substring setelah "Nomor Identitas: "
+            getline(file, line);
+            usia = stoi(line.substr(6)); // Ambil usia setelah "Usia: "
+            getline(file, line);
+            alamat = line.substr(8); // Ambil substring setelah "Alamat: "
+            getline(file, line);
+            kontak = line.substr(8); // Ambil substring setelah "Kontak: "
+            getline(file, line); // Pindah ke baris "Riwayat Penyakit:"
 
-            getline(inFile, nomorIdentitas);
-            nomorIdentitas = nomorIdentitas.substr(nomorIdentitas.find(": ") + 2);
-
-            getline(inFile, line);
-            usia = stoi(line.substr(line.find(": ") + 2));
-
-            getline(inFile, alamat);
-            alamat = alamat.substr(alamat.find(": ") + 2);
-
-            getline(inFile, kontak);
-            kontak = kontak.substr(kontak.find(": ") + 2);
-
-            // Riwayat Penyakit
-            getline(inFile, line); // "Riwayat Penyakit:"
-            while (getline(inFile, line) && !line.empty()) {
+            // Membaca riwayat penyakit
+            getline(file, line); // "Riwayat Penyakit:"
+            while (getline(file, line) && line != "============================") {
                 riwayatPenyakit.push_back(line);
-            }
-
-            // Riwayat Obat
-            getline(inFile, line); // "Riwayat Obat:"
-            while (getline(inFile, line) && !line.empty()) {
-                riwayatObat.push_back(line);
-            }
-
-            // Catatan Jadwal
-            getline(inFile, line); // "Catatan Jadwal:"
-            while (getline(inFile, line) && !line.empty()) {
-                string name = line.substr(line.find(": ") + 2);
-                getline(inFile, line); // Deskripsi
-                string description = line.substr(line.find(": ") + 2);
-                getline(inFile, line); // Nama Dokter
-                string doctorName = line.substr(line.find(": ") + 2);
-                getline(inFile, line); // Tanggal
-                string tanggal = line.substr(line.find(": ") + 2);
-                struct tm tm_time = {0};
-                strptime(tanggal.c_str(), "%d-%m-%Y %H:%M:%S", &tm_time);
-                time_t dueDate = mktime(&tm_time);
-                getline(inFile, line); // Waktu
-                string nurseSchedule = line.substr(line.find(": ") + 2);
-                catatanJadwal.push_back(Task(name, description, dueDate, doctorName, nurseSchedule));
-                getline(inFile, line); // Separator
             }
             break;
         }
     }
-
-    inFile.close();
-    return Pasien(nama, nomorIdentitas, usia, alamat, kontak, riwayatPenyakit, riwayatObat, catatanJadwal);
-
 
     file.close();
 
@@ -660,14 +611,15 @@ void viewManajemenObat() {
 // Fungsi 5 (Pencatatan Jadwal) Start Here
 class Task {
 public:
+    string nama_pasien;
     string name;
     string description;
     time_t dueDate;
     string doctorName;
     string nurseSchedule;
 
-    Task(string name, string description, time_t dueDate, string doctorName, string nurseSchedule) 
-        : name(name), description(description), dueDate(dueDate), doctorName(doctorName), nurseSchedule(nurseSchedule) {}
+    Task(string nama_pasien, string name, string description, time_t dueDate, string doctorName, string nurseSchedule) 
+        : nama_pasien(nama_pasien), name(name), description(description), dueDate(dueDate), doctorName(doctorName), nurseSchedule(nurseSchedule) {}
 
     void displayTask() const {
         cout << "Nama Pasien: " << nama_pasien << endl;
@@ -689,7 +641,7 @@ Task getTaskFromUser() {
     int doctorChoice;
     vector<string> doctors = {"Dr. Tirta Saputra", "Dr. Boyke Prayoga", "Dr. Noorman Kamaru"};
 
-    Task task("", "", 0, "", "");
+    Task task("", "", "", 0, "", "");
 
     while (true) {
         cout << "Nama Pasien: ";
@@ -707,7 +659,7 @@ Task getTaskFromUser() {
             cin.ignore(); // Membersihkan buffer
             if (tryAgain != 'y' && tryAgain != 'Y') {
                 // Jika pengguna tidak ingin mencoba lagi, keluar dari fungsi
-                return Task("", "", 0, "", "");
+                return Task("", "", "", 0, "", "");
             }
         } else {
             // Lanjutkan dengan input jadwal tanpa menampilkan deskripsi atau dokter
@@ -797,7 +749,7 @@ Task getTaskFromUser() {
             pasien.saveToFile();
 
             // Buat dan kembalikan objek Task baru
-            Task newTask(name, description, dueDate, doctorName, nurseSchedule);
+            Task newTask(nama_pasien, name, description, dueDate, doctorName, nurseSchedule);
             return newTask;
         }
     }
@@ -865,12 +817,19 @@ void viewPencatatanJadwal() {
                 }
                 break;
             case 4:
-                Task newTask = getTaskFromUser();
-                if (!newTask.name.empty()) {
-                    cout << "Task baru berhasil ditambahkan:" << endl;
-                    newTask.displayTask();
+                if (!tasks.empty()) {
+                    cout << "Jadwal Perawatan:" << endl;
+                    int index = 1;
+                    for (const auto& task : tasks) {
+                        cout << index << ". ";
+                        task.displayTask();
+                        if (isBiodataLoaded) {
+                            cout << "Nama Pasien: " << nama_pasien << endl;
+                        }
+                        index++;
+                    }
                 } else {
-                    cout << "Task tidak berhasil ditambahkan." << endl;
+                    cout << "Belum ada jadwal perawatan yang dimasukkan." << endl;
                 }
                 break;
             case 5:

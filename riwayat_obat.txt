@@ -1,7 +1,0 @@
-Nama: Nurul
-Obat: Tenofovir
-============================
-Nama: Ansel
-Obat: Tenofovir
-Obat: Metformin
-============================

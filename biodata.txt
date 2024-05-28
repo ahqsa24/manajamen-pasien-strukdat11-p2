@@ -11,25 +11,14 @@ Usia: 12
 Alamat: Bogor
 Kontak: 0812
 Riwayat Penyakit:
-batuk
 pilek
+Riwayat Obat:
+Catatan Jadwal:
+Nama Jadwal: 
+Deskripsi: Rutin
+Nama Dokter: Dr. Tirta Saputra
+Waktu: 16:00
 ============================
-Nama: Ajisaka
-Nomor Identitas: 123
-Usia: 19
-Alamat: Bogor
-Kontak: 0812
-Riwayat Penyakit:
-bogor
-bekasi
-============================
-Nama: Rohim
-Nomor Identitas: 123
-Usia: 19
-Alamat: Cianjur
-Kontak: 0812
-Riwayat Penyakit:
-
 bogor
 bekasi
 ============================
@@ -39,7 +28,55 @@ Usia: 20
 Alamat: Jakarta
 Kontak: 0812
 Riwayat Penyakit:
-bogor
-Riwayat Obat:
 Tenofovir
+Riwayat Obat:
+Riwayat Obat:
+Catatan Jadwal:
+Nama Jadwal: 
+Deskripsi: Check Up Rutin
+Nama Dokter: Dr. Tirta Saputra
+Waktu: 10:00
+============================
+Nama: Fara
+Nomor Identitas: Attira
+Usia: 541
+Alamat: Bogor
+Kontak: 0812
+Riwayat Penyakit:
+batuk
+pilek
+Riwayat Obat:
+Catatan Jadwal:
+Nama Jadwal: 
+Deskripsi: 
+Nama Dokter: 
+Waktu: 
+Riwayat Obat:
+Metformin
+Catatan Jadwal:
+Nama Jadwal: 
+Deskripsi: 
+Nama Dokter: 
+Waktu: 
+============================
+Nama: Joyo
+Nomor Identitas: 123
+Usia: 20
+Alamat: Bogor
+Kontak: 0812
+Riwayat Penyakit:
+Catatan Jadwal:
+Nama Jadwal: 
+Deskripsi: 
+Nama Dokter: 
+Tanggal: 2011688831
+Waktu: 
+Riwayat Obat:
+Metformin
+Catatan Jadwal:
+Nama Jadwal: 
+Deskripsi: 
+Nama Dokter: 
+Tanggal: 5
+Waktu: 
 ============================
